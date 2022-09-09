@@ -90,7 +90,7 @@ def send_to_game(ttt, r, c):
 def main():
 	screen = pygame.display.set_mode((W, H))
 	ttt = TTT()
-	mm = TTTMinMax(ttt, plays=TTT.P1)
+	mm = TTTMinMax(ttt, plays=TTT.P2)
 
 	game_over = False
 	running = True
@@ -104,7 +104,10 @@ def main():
 				if event.key == K_r:
 					ttt = TTT()
 					mm.ttt = ttt
-					mm.generate_tree()
+					if mm.player == TTT.P1:
+						mm.generate_tree()
+					else:
+						mm.tree = None
 					game_over = False
 
 			elif event.type == MOUSEBUTTONDOWN:
