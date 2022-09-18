@@ -10,14 +10,16 @@ W, H = 800, 600
 
 
 def render_grid(screen):
+	color = 'turquoise'
+
 	# vertical lines
 	for i in range(2):
 		x_coord = W // 3 * (i + 1)
-		pygame.draw.line(screen, THECOLORS['green'], (x_coord, 0), (x_coord, H), 10)
+		pygame.draw.line(screen, THECOLORS[color], (x_coord, 0), (x_coord, H), 10)
 	# horizontal lines
 	for i in range(2):
 		y_coord = H // 3 * (i + 1)
-		pygame.draw.line(screen, THECOLORS['green'], (0, y_coord), (W, y_coord), 10)
+		pygame.draw.line(screen, THECOLORS[color], (0, y_coord), (W, y_coord), 10)
 
 
 def mouse_pos_to_grid_coord(mouse_pos):
@@ -104,10 +106,11 @@ def main():
 				if event.key == K_r:
 					ttt = TTT()
 					mm.ttt = ttt
-					if mm.player == TTT.P1:
-						mm.generate_tree()
-					else:
-						mm.tree = None
+					# if mm.player == TTT.P1:
+					# 	mm.generate_tree(optimise=True)
+					# else:
+					# 	mm.tree = None
+					mm.tree = None
 					game_over = False
 
 			elif event.type == MOUSEBUTTONDOWN:
@@ -120,7 +123,7 @@ def main():
 
 		pygame.display.update()
 		if not game_over and ttt.playing is mm.player:
-			r, c = mm.find_next_move()
+			r, c = mm.find_next_move(optimise=True)
 			game_over = send_to_game(ttt, r, c)
 
 

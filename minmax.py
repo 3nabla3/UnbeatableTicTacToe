@@ -2,6 +2,8 @@ from TTT import TTT
 import os
 import pickle
 
+# TODO: fix the fucking bug
+
 
 class MinMaxTree:
 	def __init__(self, board, player, max_depth=3, delta=None, children=None):
@@ -104,7 +106,9 @@ class TTTMinMax:
 	def __init__(self, ttt, *, plays=None):
 		self.ttt = ttt
 
-		plays = plays or TTT.P1
+		# by default, the algo plays P2
+		plays = plays or TTT.P2
+
 		# make sure the given player is valid
 		if plays not in (self.ttt.P1, self.ttt.P2):
 			raise ValueError("Invalid player")
@@ -112,12 +116,12 @@ class TTTMinMax:
 		self.player = plays
 		self.tree = None
 
-	def generate_tree(self, max_depth=-1):
+	def generate_tree(self, max_depth=-1, *, optimise=True):
 		# the tree is very long to generate when the algo is the first to play
 		# when it plays second, the generation is relatively fast
 
 		# if the algo is first to play
-		if self.player == TTT.P1:
+		if self.player == TTT.P1 and optimise:
 			# try recovering from ram cache first
 			if self.root_tree_cache is not None:
 				print("Loading tree from ram cache...")
@@ -133,21 +137,21 @@ class TTTMinMax:
 			print("Generating tree...")
 			self.tree = MinMaxTree(self.ttt.board.__copy__(), self.player, max_depth)
 			# save it to cache if it is the big tree (when algo plays first)
-			if self.player == TTT.P1:
+			if self.player == TTT.P1 and optimise:
 				print("Writing the tree to disk cache...")
 				with open(self.cache_file, 'wb') as cache:
 					pickle.dump(self.tree, cache)
 
 		# if the big tree has not been writen to ram yet
-		if self.player == TTT.P1 and self.root_tree_cache is None:
+		if self.player == TTT.P1 and self.root_tree_cache is None and optimise:
 			print("Writing the tree to ram cache...")
 			self.root_tree_cache = self.tree
 
 		print("Done!")
 
-	def find_next_move(self):
+	def find_next_move(self, *, optimise=True):
 		if self.tree is None:
-			self.generate_tree()
+			self.generate_tree(optimise=optimise)
 
 		# check if the tree's current board matches the actual current board
 		if self.tree.board != self.ttt.board:

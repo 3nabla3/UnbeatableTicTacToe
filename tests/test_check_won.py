@@ -65,3 +65,8 @@ def test_won_diag():
 	ttt = TTT(init_board=state)
 	assert ttt.check_won('x') is False
 	assert ttt.check_won('o') is True
+
+	state = ['xxo', '-o-', 'ox-']
+	ttt = TTT(init_board=state)
+	assert ttt.check_won('x') is False
+	assert ttt.check_won('o') is True
