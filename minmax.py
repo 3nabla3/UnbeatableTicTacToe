@@ -2,11 +2,9 @@ from TTT import TTT
 import os
 import pickle
 
-# TODO: fix the fucking bug
-
 
 class MinMaxTree:
-	def __init__(self, board, player, max_depth=3, delta=None, children=None):
+	def __init__(self, board, player, depth, delta=None, children=None):
 		self.board = board
 		self._score = None
 		# who plays next given the current board (p1 or p2)
@@ -15,13 +13,20 @@ class MinMaxTree:
 		self.delta = delta
 
 		# the convention is X (p1) tries to maximise and O (p2) tries to minimise
-		self.is_maximising = self.player == TTT.P1
+		self.is_maximising = (self.player == TTT.P1)
 
-		self.max_depth = max_depth
+		self.depth = depth
 		self.children: list[MinMaxTree] = children or []
-		state = TTT.get_board_state(self.board)
-		if state is TTT.BoardState.IN_PROGRESS:
-			self._generate_tree(max_depth)
+		self.board_state = TTT.get_board_state(self.board)
+
+	# if board_state is TTT.BoardState.IN_PROGRESS:
+	# 	self.generate_tree()
+	# elif board_state is TTT.BoardState.TIE:
+	# 	self._score = 0
+	# elif board_state is TTT.BoardState.P1_WON:
+	# 	self._score = 1
+	# elif board_state is TTT.BoardState.P2_WON:
+	# 	self._score = -1
 
 	def avail_spaces_coord(self):
 		for i, row in enumerate(self.board):
@@ -29,20 +34,21 @@ class MinMaxTree:
 				if elem == TTT.AVAIL:
 					yield i, j
 
-	def _generate_tree(self, max_depth):
-		if max_depth == 0:
+	def generate_tree(self):
+		if self.depth == 0 or self.board_state is not TTT.BoardState.IN_PROGRESS:
 			return
 
 		# when the computer generates the tree, it assumes it is playing next
-		# child_n = 0
+		# Breadth first generation algo
 		for r, c in self.avail_spaces_coord():
-			# print(f"Analyzing {child_n=} {max_depth=}")
-			# child_n += 1
 			potential_board = self.board.__copy__()
 			potential_board[r, c] = self.player
 			next_player = TTT.P1 if self.player == TTT.P2 else TTT.P2
-			child = MinMaxTree(potential_board, next_player, max_depth - 1, delta=(r, c))
+			child = MinMaxTree(potential_board, next_player, self.depth - 1, delta=(r, c))
 			self.add_child(child)
+
+		for child in self.children:
+			child.generate_tree()
 
 	def add_child(self, child):
 		self.children.append(child)
@@ -54,8 +60,8 @@ class MinMaxTree:
 		return self._score
 
 	def _calculate_score(self):
+		# If the board has no empty spaces left, it must be a tie, or a win
 		if not self.children:
-			# If the board has no empty spaces left, it must be a tie, or a win
 			state = TTT.get_board_state(self.board)
 			# If X (p1) wins, the score is +1 because X tries to maximise
 			if state is TTT.BoardState.P1_WON:
@@ -67,22 +73,20 @@ class MinMaxTree:
 			elif state is TTT.BoardState.TIE:
 				self._score = 0
 			else:
-				raise ValueError("Invalid board state")
+				raise ValueError("Invalid board state:", state)
 
 		else:
 			children_scores = (child.get_score() for child in self.children)
-			if self.is_maximising:
-				self._score = max(children_scores)
-			else:
-				self._score = min(children_scores)
+			temp_score = max(children_scores) if self.is_maximising else min(children_scores)
+			# divide by two for each step it takes to win
+			self._score = temp_score / 2
 
 	def best_move(self):
 		if self.is_maximising:
-			max_child = max(self.children, key=lambda c: c.get_score())
-			return max_child.delta
+			best_child = max(self.children, key=lambda c: c.get_score())
 		else:
-			min_child = min(self.children, key=lambda c: c.get_score())
-			return min_child.delta
+			best_child = min(self.children, key=lambda c: c.get_score())
+		return best_child.delta
 
 	def _str(self, pref="Root"):
 		""" Recursively prints the nodes and labeling them with the path from the root """
@@ -116,7 +120,7 @@ class TTTMinMax:
 		self.player = plays
 		self.tree = None
 
-	def generate_tree(self, max_depth=-1, *, optimise=True):
+	def generate_tree(self, max_depth=float('inf'), *, optimise=True):
 		# the tree is very long to generate when the algo is the first to play
 		# when it plays second, the generation is relatively fast
 
@@ -136,6 +140,7 @@ class TTTMinMax:
 		if self.tree is None:
 			print("Generating tree...")
 			self.tree = MinMaxTree(self.ttt.board.__copy__(), self.player, max_depth)
+			self.tree.generate_tree()
 			# save it to cache if it is the big tree (when algo plays first)
 			if self.player == TTT.P1 and optimise:
 				print("Writing the tree to disk cache...")
@@ -181,5 +186,6 @@ if __name__ == '__main__':
 		ttt = TTT()
 		mm = TTTMinMax(ttt, plays=TTT.P2)
 		ttt.main_loop(algo=mm, algo_plays=TTT.P2)
+
 
 	main()
