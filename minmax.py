@@ -35,7 +35,7 @@ class MinMaxTree:
 					yield i, j
 
 	def generate_tree(self):
-		if self.depth == 0 or self.board_state is not TTT.BoardState.IN_PROGRESS:
+		if self.depth == 0 or self.board_state is not TTT.GameState.IN_PROGRESS:
 			return
 
 		# when the computer generates the tree, it assumes it is playing next

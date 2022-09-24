@@ -10,4 +10,3 @@ def test_minimize():
 	tree: MinMaxTree = mm.tree
 	score = tree.get_score()
 	assert score == -1
-
