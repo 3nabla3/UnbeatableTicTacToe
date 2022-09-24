@@ -1,3 +1,5 @@
+import time
+
 import pygame
 from pygame.color import THECOLORS
 from pygame.locals import *
@@ -91,8 +93,10 @@ def send_to_game(ttt, r, c):
 
 def main():
 	screen = pygame.display.set_mode((W, H))
+	clock = pygame.time.Clock()
+
 	ttt = TTT()
-	mm = TTTMinMax(ttt, plays=TTT.P2)
+	mm = TTTMinMax(ttt, plays=TTT.P1)
 
 	game_over = False
 	running = True
@@ -106,10 +110,6 @@ def main():
 				if event.key == K_r:
 					ttt = TTT()
 					mm.ttt = ttt
-					# if mm.player == TTT.P1:
-					# 	mm.generate_tree(optimise=True)
-					# else:
-					# 	mm.tree = None
 					mm.tree = None
 					game_over = False
 
@@ -124,7 +124,9 @@ def main():
 		pygame.display.update()
 		if not game_over and ttt.playing is mm.player:
 			r, c = mm.find_next_move(optimise=True)
+			time.sleep(0.5)
 			game_over = send_to_game(ttt, r, c)
+		clock.tick(30)
 
 
 if __name__ == '__main__':
