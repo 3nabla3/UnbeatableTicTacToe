@@ -20,7 +20,7 @@ class MinMaxTree:
 		self.max_depth = max_depth
 		self.children: list[MinMaxTree] = children or []
 		state = TTT.get_board_state(self.board)
-		if state is TTT.BoardState.IN_PROGRESS:
+		if state is TTT.GameState.IN_PROGRESS:
 			self._generate_tree(max_depth)
 
 	def avail_spaces_coord(self):
@@ -58,13 +58,13 @@ class MinMaxTree:
 			# If the board has no empty spaces left, it must be a tie, or a win
 			state = TTT.get_board_state(self.board)
 			# If X (p1) wins, the score is +1 because X tries to maximise
-			if state is TTT.BoardState.P1_WON:
+			if state is TTT.GameState.P1_WON:
 				self._score = 1
 			# If O (p2) wins, the score is -1 because O tries to minimise
-			elif state is TTT.BoardState.P2_WON:
+			elif state is TTT.GameState.P2_WON:
 				self._score = -1
 			# if it is a tie, the score is 0
-			elif state is TTT.BoardState.TIE:
+			elif state is TTT.GameState.TIE:
 				self._score = 0
 			else:
 				raise ValueError("Invalid board state")

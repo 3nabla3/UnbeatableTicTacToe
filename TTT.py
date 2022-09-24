@@ -100,7 +100,7 @@ class TTT:
 	P2 = 'o'
 	AVAIL = '-'
 
-	class BoardState(Enum):
+	class GameState(Enum):
 		""" Enum which contains the four possible game states """
 		IN_PROGRESS = auto()
 		TIE = auto()
@@ -110,7 +110,7 @@ class TTT:
 	def __init__(self, *, init_board=None, starting=None):
 		self._playing = starting or self.P1
 		self.board = Board(init_board)
-		self._state = self.BoardState.IN_PROGRESS
+		self._state = self.GameState.IN_PROGRESS
 
 	@property
 	def playing(self):
@@ -174,13 +174,13 @@ class TTT:
 	def update_state(self):
 		""" Update the state of the board by analyzing it """
 		if self.check_won(self.P1):
-			self._state = self.BoardState.P1_WON
+			self._state = self.GameState.P1_WON
 		elif self.check_won(self.P2):
-			self._state = self.BoardState.P2_WON
+			self._state = self.GameState.P2_WON
 
 		elif self.check_board_full():
 			# if no one won and there are no more free spots, it is a tie
-			self._state = self.BoardState.TIE
+			self._state = self.GameState.TIE
 
 	def play(self, r, c):
 		""" Update the board and the game state with a given move from the playing player """
@@ -194,7 +194,7 @@ class TTT:
 		""" Runs a main loop which continuously plays until the game is won or tied
 		Can optionally be given an algorithm to play as a given player """
 
-		while self._state is TTT.BoardState.IN_PROGRESS:
+		while self._state is TTT.GameState.IN_PROGRESS:
 			print(self)
 			if algo and self._playing == algo_plays:
 				r, c = algo.find_next_move()
@@ -207,11 +207,11 @@ class TTT:
 				print(e)
 		print(self)
 
-		if self.state is TTT.BoardState.P1_WON:
+		if self.state is TTT.GameState.P1_WON:
 			print(f"{self.P1} won")
-		elif self.state is TTT.BoardState.P2_WON:
+		elif self.state is TTT.GameState.P2_WON:
 			print(f"{self.P2} won")
-		elif self.state is TTT.BoardState.TIE:
+		elif self.state is TTT.GameState.TIE:
 			print("Tie")
 
 	def __str__(self):

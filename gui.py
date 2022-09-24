@@ -73,20 +73,20 @@ def draw_o(screen, row_i, col_i):
 
 
 def send_to_game(ttt, r, c):
-	state = TTT.BoardState.IN_PROGRESS
+	state = TTT.GameState.IN_PROGRESS
 	try:
 		state = ttt.play(r, c)
 	except ValueError as e:
 		print(e)
 
-	if state is TTT.BoardState.P1_WON:
+	if state is TTT.GameState.P1_WON:
 		print(f"{TTT.P1} won")
-	elif state is TTT.BoardState.P2_WON:
+	elif state is TTT.GameState.P2_WON:
 		print(f"{TTT.P2} won")
-	elif state is TTT.BoardState.TIE:
+	elif state is TTT.GameState.TIE:
 		print("Tie")
 
-	return state is not TTT.BoardState.IN_PROGRESS
+	return state is not TTT.GameState.IN_PROGRESS
 
 
 def main():
